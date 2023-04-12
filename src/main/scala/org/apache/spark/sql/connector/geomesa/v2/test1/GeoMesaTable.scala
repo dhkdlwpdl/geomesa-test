@@ -1,10 +1,10 @@
-package org.apache.spark.sql.connector.geomesa.v2
+package org.apache.spark.sql.connector.geomesa.v2.test1
 
 import org.apache.spark.sql.connector.catalog.{SupportsRead, TableCapability}
+import org.apache.spark.sql.connector.geomesa.v2.test1.GeoMesaSparkSQL.GEOMESA_SQL_FEATURE
 import org.apache.spark.sql.connector.read.ScanBuilder
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.util.CaseInsensitiveStringMap
-import GeoMesaSparkSQL.GEOMESA_SQL_FEATURE
 
 import java.util
 import java.util.Set

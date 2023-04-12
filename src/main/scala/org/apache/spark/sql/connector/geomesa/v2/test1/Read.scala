@@ -1,4 +1,4 @@
-package org.apache.spark.sql.connector.geomesa.v2
+package org.apache.spark.sql.connector.geomesa.v2.test1
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.spark.sql.SparkSession
@@ -51,11 +51,11 @@ case class GeoMesaInputPartition(value: Int) extends InputPartition
 class GeoMesaPartitionReaderFactory(options: Map[String, String], name: String, schema: StructType) extends PartitionReaderFactory {
   // 실제 Data Reader를 생성하기 위한 Factory 클래스
   override def createReader(partition: InputPartition): PartitionReader[InternalRow] = {
-    new GeoMeseaPartitionReader(options, name, partition, schema)
+    new GeoMesaPartitionReader(options, name, partition, schema)
   }
 }
 
-class GeoMeseaPartitionReader(options: Map[String, String], name: String, partition: InputPartition, schema: StructType) extends PartitionReader[InternalRow] {
+class GeoMesaPartitionReader(options: Map[String, String], name: String, partition: InputPartition, schema: StructType) extends PartitionReader[InternalRow] {
   private var iterator: Iterator[SimpleFeature] = null
   private val sparkContext: SparkContext = SparkContext.getOrCreate()
 

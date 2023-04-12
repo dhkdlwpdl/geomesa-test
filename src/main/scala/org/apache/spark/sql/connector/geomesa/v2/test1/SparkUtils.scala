@@ -1,4 +1,4 @@
-package org.apache.spark.sql.connector.geomesa.v2
+package org.apache.spark.sql.connector.geomesa.v2.test1
 
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql.Row

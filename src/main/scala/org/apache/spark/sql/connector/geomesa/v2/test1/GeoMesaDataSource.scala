@@ -1,14 +1,14 @@
-package org.apache.spark.sql.connector.geomesa.v2
+package org.apache.spark.sql.connector.geomesa.v2.test1
 
-import org.apache.spark.sql.{SQLContext, SparkSession}
 import org.apache.spark.sql.connector.catalog.{Table, TableProvider}
 import org.apache.spark.sql.connector.expressions.Transform
+import org.apache.spark.sql.connector.geomesa.v1.SQLTypes
+import org.apache.spark.sql.connector.geomesa.v2.test1.GeoMesaSparkSQL.GEOMESA_SQL_FEATURE
 import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationProvider}
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.util.CaseInsensitiveStringMap
+import org.apache.spark.sql.{SQLContext, SparkSession}
 import org.geotools.data.DataStore
-import org.apache.spark.sql.connector.geomesa.v1.SQLTypes
-import GeoMesaSparkSQL.GEOMESA_SQL_FEATURE
 import org.locationtech.geomesa.utils.io.WithStore
 
 import java.util
