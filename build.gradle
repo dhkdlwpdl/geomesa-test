@@ -1,0 +1,83 @@
+plugins {
+    id 'scala'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+
+repositories {
+    mavenCentral()
+
+    // geotools
+    maven {
+        url "https://repo.osgeo.org/repository/release"
+        name "OSGeo Repository"
+    }
+
+// confluent
+    maven {
+        url "https://packages.confluent.io/maven/"
+        name "Confluent Repository"
+    }
+
+// nightly geomesa snapshots
+    maven {
+        url "https://repo.eclipse.org/content/groups/snapshots"
+        name "LocationTech Snapshots"
+        content {
+            snapshotsOnly()
+        }
+    }
+
+// nightly geotools snapshots
+    maven {
+        url "https://repo.osgeo.org/repository/snapshot"
+        name "OSGeo Snapshots"
+        content {
+            snapshotsOnly()
+        }
+    }
+}
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+
+    // scala
+    implementation('org.scala-lang:scala-library:2.12.10')
+
+    // geomesa
+        // for fs datastore test
+    implementation 'org.locationtech.geomesa:geomesa-fs-datastore_2.12:3.5.0'
+
+        // for geomesa datasource
+    implementation ('org.locationtech.geomesa:geomesa-spark-core_2.12:3.5.0')
+    implementation ('org.locationtech.geomesa:geomesa-spark-jts_2.12:3.5.0')
+
+        // for geomesa datasource test
+    implementation 'org.locationtech.geomesa:geomesa-cqengine-datastore_2.12:3.5.0'
+    implementation('org.locationtech.geomesa:geomesa-gt-spark_2.12:3.5.0')
+
+
+//    implementation 'org.locationtech.geomesa:geomesa-spark-sql_2.12:3.5.0'
+//    implementation 'org.locationtech.geomesa:geomesa-cqengine_2.12:3.5.0'
+
+
+
+
+
+    // delta
+    compile 'io.delta:delta-core_2.12:0.8.0'
+
+    // Spark
+    // https://mvnrepository.com/artifact/org.apache.spark/spark-sql
+    compile 'org.apache.spark:spark-sql_2.12:3.3.2'
+    compile 'org.apache.spark:spark-core_2.12:3.3.2'
+
+
+}
+
+
+test {
+    useJUnitPlatform()
+}
