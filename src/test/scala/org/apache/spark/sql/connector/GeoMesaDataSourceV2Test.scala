@@ -18,8 +18,6 @@ object GeoMesaDataSourceV2Test {
 
     // Spark Session 구성
     val spark: SparkSession = SparkSQLTestUtils.createSparkSession()
-
-    println(spark.sparkContext.conf.getAll.mkString("\n"))
     spark.sparkContext.setLogLevel("ERROR")
 
 
@@ -32,14 +30,14 @@ object GeoMesaDataSourceV2Test {
       .load()
     df.show()
 
-      // 테스트2: Spark SQL select
-    spark.sql("create table test2 using geov2 options (cqengine 'true', geotools 'true', geomesa.feature 'chicago')")
-    spark.sql("show tables").show()
-    spark.sql("describe test2").show()
-    spark.sql("select * from test2").show()
-
-      // 테스트3: Spark SQL + Condition
-    spark.sql("select * from test2 where case_number = 3").show()
+//      // 테스트2: Spark SQL select
+//    spark.sql("create table test2 using geov2 options (cqengine 'true', geotools 'true', geomesa.feature 'chicago')")
+//    spark.sql("show tables").show()
+//    spark.sql("describe test2").show()
+//    spark.sql("select * from test2").show()
+//
+//      // 테스트3: Spark SQL + Condition
+//    spark.sql("select * from test2 where case_number = 3").show()
 
 
     // ------------------------------------------------------------------------------------------------

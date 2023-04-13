@@ -1,4 +1,4 @@
-package org.apache.spark.sql.connector.geomesa.v2.test1
+package org.apache.spark.sql.connector.geomesa.v2.common
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.sources.{BaseRelation, Filter, PrunedFilteredScan}

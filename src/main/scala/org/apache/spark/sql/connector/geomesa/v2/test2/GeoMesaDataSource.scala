@@ -1,4 +1,4 @@
-package org.apache.spark.sql.connector.geomesa.v2.test1
+package org.apache.spark.sql.connector.geomesa.v2.test2
 
 import org.apache.spark.sql.connector.catalog.{Table, TableProvider}
 import org.apache.spark.sql.connector.expressions.Transform

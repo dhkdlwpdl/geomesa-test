@@ -22,7 +22,7 @@ object SparkSQLTestUtils {
       .config("spark.kryo.registrator", classOf[GeoMesaSparkKryoRegistrator].getName)
       .config("spark.sql.crossJoin.enabled", "true")
       .config("spark.ui.enabled", value = false)
-      .master("local[*]")
+      .master("local[4]")
       .getOrCreate()
   }
 
