@@ -1,10 +1,10 @@
-package org.apache.spark.sql.connector.geomesa.v2.test2
+package org.apache.spark.sql.connector.geomesa.v2.test2.case1
 
 import org.apache.spark.sql.connector.catalog.{Table, TableProvider}
 import org.apache.spark.sql.connector.expressions.Transform
 import org.apache.spark.sql.connector.geomesa.v1.SQLTypes
-import org.apache.spark.sql.connector.geomesa.v2.common.{GeoMesaRelation, SparkUtils}
 import org.apache.spark.sql.connector.geomesa.v2.common.GeoMesaSparkSQL.GEOMESA_SQL_FEATURE
+import org.apache.spark.sql.connector.geomesa.v2.common.SparkUtils
 import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationProvider}
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.util.CaseInsensitiveStringMap
@@ -16,7 +16,8 @@ import java.util
 import scala.collection.JavaConverters.mapAsJavaMapConverter
 
 /**
- * DataSource V2 테스트 without SpatialRDDProvider (CQEngine 특화)
+ * DataSource V2 테스트 without SpatialRDDProvider
+ * 파티션 구분 없이 전체 데이터를 하나의 Spark 파티션으로 읽어옴 (..)
  */
 class GeoMesaDataSource extends TableProvider with DataSourceRegister with RelationProvider {
   override def shortName(): String = "geov2withoutsrp"

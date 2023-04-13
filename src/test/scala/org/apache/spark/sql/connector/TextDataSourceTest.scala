@@ -6,7 +6,7 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 import scala.collection.JavaConverters.mapAsJavaMapConverter
 import java.nio.file.{Files, Path, Paths}
 
-object TestDataSourceTest {
+object TextDataSourceTest {
   def main(args: Array[String]): Unit = {
     // Spark Session 구성
     val spark: SparkSession = SparkSQLTestUtils.createSparkSession()

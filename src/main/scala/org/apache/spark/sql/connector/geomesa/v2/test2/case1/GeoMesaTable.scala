@@ -1,4 +1,4 @@
-package org.apache.spark.sql.connector.geomesa.v2.test2
+package org.apache.spark.sql.connector.geomesa.v2.test2.case1
 
 import org.apache.spark.sql.connector.catalog.{SupportsRead, SupportsWrite, TableCapability}
 import org.apache.spark.sql.connector.geomesa.v2.common.GeoMesaSparkSQL.GEOMESA_SQL_FEATURE
@@ -29,5 +29,5 @@ class GeoMesaTable(options: util.Map[String, String], schema: StructType) extend
     new GeoMesaScanBuilderWithoutSRP(options, schema, name())
   }
 
-  override def newWriteBuilder(info: LogicalWriteInfo): WriteBuilder = new GeoMesaWriteBuilder(options)
+  override def newWriteBuilder(info: LogicalWriteInfo): WriteBuilder = new GeoMesaWriteBuilder(options, schema)
 }

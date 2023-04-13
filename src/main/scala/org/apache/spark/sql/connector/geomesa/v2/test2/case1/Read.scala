@@ -1,15 +1,15 @@
-package org.apache.spark.sql.connector.geomesa.v2.test2
+package org.apache.spark.sql.connector.geomesa.v2.test2.case1
 
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.connector.geomesa.v2.common.SparkUtils
 import org.apache.spark.sql.connector.read._
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.util.CaseInsensitiveStringMap
-import org.apache.spark.SparkContext
 import org.geotools.data.{DataStore, Query, Transaction}
 import org.locationtech.geomesa.utils.collection.CloseableIterator
 import org.locationtech.geomesa.utils.io.{WithClose, WithStore}
 import org.opengis.feature.simple.SimpleFeature
+
 import scala.collection.JavaConverters.mapAsScalaMapConverter
 
 class GeoMesaScanBuilderWithoutSRP(options: CaseInsensitiveStringMap, schema: StructType, name: String) extends ScanBuilder {
@@ -45,15 +45,11 @@ class GeoMesaPartitionReaderFactoryWithoutSRP(options: Map[String, String], name
 }
 
 class GeoMesaPartitionReaderWithoutSRP(options: Map[String, String], name: String, partition: InputPartition, schema: StructType) extends PartitionReader[InternalRow] {
-
   private var iterator: Iterator[SimpleFeature] = null
-  private val sparkContext: SparkContext = SparkContext.getOrCreate()
 
   override def next(): Boolean = {
     if (iterator == null ){
       val query: Query = new Query(name)
-      val requiredColumns = schema.map(_.name).toArray // temporary
-      val extractors = SparkUtils.getExtractors(requiredColumns, schema)
       iterator = WithStore[DataStore](options) { ds =>
         WithClose(ds.getFeatureReader(query, Transaction.AUTO_COMMIT)) { reader =>
           CloseableIterator(reader).toList

@@ -3,7 +3,7 @@ package org.apache.spark.sql.connector.geomesa.v2.common
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.expressions.{GenericInternalRow, GenericRowWithSchema}
+import org.apache.spark.sql.catalyst.expressions.{GenericInternalRow, GenericRowWithSchema, UnsafeRow}
 import org.apache.spark.sql.jts.{JTSTypes, PointUDT}
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
@@ -290,6 +290,40 @@ object SparkUtils extends LazyLogging {
    */
   def rowsToFeatures(name: String, schema: StructType): SimpleFeatureRowMapping =
     rowsToFeatures(createFeatureType(name, schema), schema)
+
+  // utf string cast 내용 추가
+  def rowsToFeaturesByYJ(sft: SimpleFeatureType, schema: StructType): SimpleFeatureRowMappingByYJ = {
+    val mappings = Seq.tabulate(sft.getAttributeCount) { i =>
+      val descriptor = sft.getDescriptor(i)
+      val binding = descriptor.getType.getBinding
+//      val needConversion = (classOf[java.util.List[_]].isAssignableFrom(binding) ||
+//        classOf[java.util.Map[_, _]].isAssignableFrom(binding))
+      val needConversion = true
+      (i, schema.fieldIndex(descriptor.getLocalName), needConversion)
+    }
+    val fid: Row => String = schema.fields.indexWhere(_.name == "__fid__") match {
+      case -1 => _ => TimeSortedUuidGenerator.createUuid().toString
+      case i => r => r.get(i).toString // 이 부분만 수정 (Utf8 String 이슈 때문)
+    }
+    SimpleFeatureRowMappingByYJ(sft, mappings, fid)
+  }
+  def rowsToFeaturesByYJ(name: String, schema: StructType): SimpleFeatureRowMappingByYJ =
+    rowsToFeaturesByYJ(createFeatureType(name, schema), schema)
+
+  case class SimpleFeatureRowMappingByYJ(sft: SimpleFeatureType, mappings: Seq[(Int, Int, Boolean)], id: Row => String) {
+    def apply(row: Row): SimpleFeature = {
+      val feature = new ScalaSimpleFeature(sft, id(row))
+      mappings.foreach { case (to, from, needConversion) =>
+        if (needConversion) {
+          if (row.get(from).isInstanceOf[UnsafeRow]) feature.setAttribute(to, PointUDT.deserialize(row.getAs[Array[Byte]](from))) // Point Type Cast 임시
+          else feature.setAttribute(to, row.getAs[Object](from))
+        }
+        else feature.setAttributeNoConvert(to, row.getAs[Object](from))
+      }
+      feature
+    }
+  }
+
 
   // test by yj
   def sf2InternalRowByYJ(sf: SimpleFeature, extractors: Array[SimpleFeature => AnyRef]): InternalRow = {

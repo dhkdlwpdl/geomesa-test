@@ -29,39 +29,39 @@ object GeoMesaDataSourceV2WithoutSRPTest {
       .load()
     df.show()
 
-//      // 테스트2: Spark SQL select
-//    spark.sql("create table test2 using geov2withoutsrp options (cqengine 'true', geotools 'true', geomesa.feature 'chicago')")
-//    spark.sql("show tables").show()
-//    spark.sql("describe test2").show()
-//    spark.sql("select * from test2").show()
-//
-//      // 테스트3: Spark SQL + Condition
-//    spark.sql("select * from test2 where case_number = 3").show()
+      // 테스트2: Spark SQL select
+    spark.sql("create table test2 using geov2withoutsrp options (cqengine 'true', geotools 'true', geomesa.feature 'chicago')")
+    spark.sql("show tables").show()
+    spark.sql("describe test2").show()
+    spark.sql("select * from test2").show()
+
+      // 테스트3: Spark SQL + Condition
+    spark.sql("select * from test2 where case_number = 3").show()
 
 
-    // ------------------------------------------------------------------------------------------------
-
+    println("------------------------------------------------------------------------------------------------")
     // 적재 테스트
       // 테스트1: DataFrame save/saveAsTable
-//    val dfWriter = df.write
-//      .format("geov2withoutsrp")
-//      .options(dsParams)
-//      .option("geomesa.feature", "chicago")
-//      .mode(SaveMode.Append)
-//
-//    dfWriter.save("D:/tmp/")
+    val dfWriter = df.write
+      .format("geov2withoutsrp")
+      .options(dsParams)
+      .option("geomesa.feature", "chicago")
+      .mode(SaveMode.Append)
+
+    dfWriter.save("D:/tmp/")
 //    dfWriter.saveAsTable("test1")
 //    spark.sql("show tables").show()
 //    spark.sql("select * from test1").show()
-//
-//    // 테스트2: Spark SQL insert
-//    spark.sql(s"""insert into test2
-//                 | select '5' as __fid__,
-//                 | 'yjyj' as arrest,
-//                 | 123123 as case_number,
-//                 | current_timestamp() as dtg,
-//                 | st_point (10.0, 20.0) as geom""".stripMargin)
 
+    // 테스트2: Spark SQL insert
+    spark.sql(s"""insert into test2
+                 | select '5' as __fid__,
+                 | 'yjyj' as arrest,
+                 | 123123 as case_number,
+                 | current_timestamp() as dtg,
+                 | st_point (10.0, 20.0) as geom""".stripMargin)
+
+    spark.sql("select * from test2").show()
 
 
   }
