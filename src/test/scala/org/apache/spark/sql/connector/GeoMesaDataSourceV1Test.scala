@@ -2,7 +2,7 @@ package org.apache.spark.sql.connector
 
 import java.util.{Map => JMap}
 import scala.collection.JavaConverters.mapAsJavaMapConverter
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
 import org.geotools.data.{DataStore, DataStoreFinder}
 
 object GeoMesaDataSourceV1Test {
@@ -59,6 +59,7 @@ object GeoMesaDataSourceV1Test {
                  | current_timestamp() as dtg,
                  | st_point (10.0, 20.0) as geom""".stripMargin)
 
+    spark.sql("select * from test2").show()
 
 
   }

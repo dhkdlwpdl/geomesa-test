@@ -5,11 +5,9 @@ import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.connector.geomesa.v2.common.GeoMesaSparkSQL.GEOMESA_SQL_FEATURE
 import org.apache.spark.sql.connector.geomesa.v2.common.SparkUtils
 import org.apache.spark.sql.connector.write._
-import org.apache.spark.sql.jts.{AbstractGeometryUDT, PointUDT}
 import org.apache.spark.sql.types.{StringType, StructType}
 import org.geotools.data.{DataStoreFinder, Transaction}
 import org.locationtech.geomesa.utils.geotools.FeatureUtils
-import org.locationtech.jts.geom.Geometry
 
 import java.util
 
@@ -43,7 +41,7 @@ class GeoMesaDataWriter(partitionId: Int, options: util.Map[String, String], sch
 
 
     println(sf, fw)
-    FeatureUtils.write(fw, sf)
+    FeatureUtils.write(fw, sf, true)
   }
 
   override def commit(): WriterCommitMessage = {

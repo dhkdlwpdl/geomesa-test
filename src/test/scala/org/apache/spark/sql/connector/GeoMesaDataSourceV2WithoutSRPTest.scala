@@ -46,14 +46,16 @@ object GeoMesaDataSourceV2WithoutSRPTest {
       .format("geov2withoutsrp")
       .options(dsParams)
       .option("geomesa.feature", "chicago")
-      .mode(SaveMode.Append)
+        .mode(SaveMode.Append)
 
     dfWriter.save("D:/tmp/")
 //    dfWriter.saveAsTable("test1")
-//    spark.sql("show tables").show()
+    spark.sql("show tables").show()
 //    spark.sql("select * from test1").show()
 
     // 테스트2: Spark SQL insert
+    spark.sql("select * from test2").show()
+
     spark.sql(s"""insert into test2
                  | select '5' as __fid__,
                  | 'yjyj' as arrest,
