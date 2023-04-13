@@ -41,6 +41,7 @@ class GeoMesaBatch(options: Map[String, String], name: String, partitions: Array
   // 데이터가 얼마나 많은 파티션을 가지고 있는지와 어떻게 데이터를 파티션에서 읽어올건지 같은 물리적인 정보 제공을 위해 사용됨
 
   override def planInputPartitions(): Array[InputPartition] = {
+    println("plan input partitions")
     val parts = partitions.indices.map(value =>  GeoMesaInputPartition(value))
     parts.toArray
   }

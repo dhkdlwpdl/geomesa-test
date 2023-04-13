@@ -1,4 +1,4 @@
-package org.locationtech.geomesa.spark
+package org.apache.spark.sql.connector
 
 import org.apache.spark.sql.SparkSession
 import org.geotools.data.simple.SimpleFeatureStore
@@ -6,6 +6,7 @@ import org.geotools.data.{DataStore, DataUtilities}
 import org.geotools.geometry.jts.JTSFactoryFinder
 import org.geotools.util.factory.Hints
 import org.locationtech.geomesa.features.ScalaSimpleFeature
+import org.locationtech.geomesa.spark.GeoMesaSparkKryoRegistrator
 import org.locationtech.geomesa.utils.geotools.SimpleFeatureTypes
 import org.locationtech.geomesa.utils.interop.WKTUtils
 import org.locationtech.jts.geom.{Coordinate, GeometryFactory, Point}

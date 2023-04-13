@@ -4,7 +4,6 @@ import java.util.{Map => JMap}
 import scala.collection.JavaConverters.mapAsJavaMapConverter
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.geotools.data.{DataStore, DataStoreFinder}
-import org.locationtech.geomesa.spark.SparkSQLTestUtils
 
 object GeoMesaDataSourceV1Test {
   def main(args: Array[String]): Unit = {

@@ -2,7 +2,7 @@ package org.apache.spark.sql.connector
 
 import java.util.{Map => JMap}
 import org.apache.spark.sql.{DataFrame, SparkSession}
-import org.locationtech.geomesa.spark.SparkSQLTestUtils
+
 import scala.collection.JavaConverters.mapAsJavaMapConverter
 import java.nio.file.{Files, Path, Paths}
 

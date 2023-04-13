@@ -15,6 +15,9 @@ import org.locationtech.geomesa.utils.io.WithStore
 import java.util
 import scala.collection.JavaConverters.mapAsJavaMapConverter
 
+/**
+ * DataSource V2 테스트 w. SpatialRDDProvider
+ */
 class GeoMesaDataSource extends TableProvider with DataSourceRegister with RelationProvider {
   override def shortName(): String = "geov2"
 

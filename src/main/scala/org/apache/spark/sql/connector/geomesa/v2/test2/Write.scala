@@ -1,9 +1,8 @@
-package org.apache.spark.sql.connector.geomesa.v2.test1
+package org.apache.spark.sql.connector.geomesa.v2.test2
 
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.connector.write._
 
-import java.io.{BufferedWriter, FileOutputStream, OutputStreamWriter}
 import java.util
 
 class GeoMesaWriteBuilder(options: util.Map[String, String]) extends WriteBuilder {
@@ -23,21 +22,21 @@ class GeoMesaDataWriterFactory(options: util.Map[String, String]) extends DataWr
 }
 
 class GeoMesaDataWriter(partitionId: Int, options: util.Map[String, String]) extends DataWriter[InternalRow] {
-  val filePath: String = options.get("path").replace("file:/", "") + s"/part-$partitionId.txt"
-  val writer: BufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath, true))) // true: Append 모드로 파일을 연다
+  println("partition id =" + partitionId)
 
   override def write(record: InternalRow): Unit = {
-    val rowString = record.getString(0)
-    writer.write(rowString)
-    writer.newLine()
+
+    println("write")
+    println("record = " + record)
+
   }
 
   override def commit(): WriterCommitMessage = {
-    writer.flush()
+    println("commit")
     null
   }
 
   override def abort(): Unit = {}
 
-  override def close(): Unit = writer.close()
+  override def close(): Unit = println("close")
 }
