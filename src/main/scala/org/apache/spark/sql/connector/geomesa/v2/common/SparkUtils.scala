@@ -4,7 +4,7 @@ import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.{GenericInternalRow, GenericRowWithSchema}
-import org.apache.spark.sql.jts.JTSTypes
+import org.apache.spark.sql.jts.{JTSTypes, PointUDT}
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
@@ -302,7 +302,7 @@ object SparkUtils extends LazyLogging {
       tmp match {
         case _: String => res(i) = UTF8String.fromString(tmp.toString)
         case _: Timestamp => res(i) = tmp.asInstanceOf[Timestamp].getTime
-        case _: Point => tmp.asInstanceOf[Point].toString
+        case _: Point => res(i) = PointUDT.serialize(tmp.asInstanceOf[Point])
         case _ => res(i) = tmp
       }
 
