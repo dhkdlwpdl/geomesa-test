@@ -25,7 +25,6 @@ class GeoMesaTable(options: util.Map[String, String], schema: StructType) extend
   override def capabilities(): util.Set[TableCapability] = caps
 
   override def newScanBuilder(options: CaseInsensitiveStringMap): ScanBuilder = {
-//    new GeoMesaScanBuilder(options, schema, name())
     new GeoMesaScanBuilderWithoutSRP(options, schema, name())
   }
 

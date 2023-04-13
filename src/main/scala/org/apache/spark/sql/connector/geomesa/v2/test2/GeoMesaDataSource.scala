@@ -3,7 +3,7 @@ package org.apache.spark.sql.connector.geomesa.v2.test2
 import org.apache.spark.sql.connector.catalog.{Table, TableProvider}
 import org.apache.spark.sql.connector.expressions.Transform
 import org.apache.spark.sql.connector.geomesa.v1.SQLTypes
-import org.apache.spark.sql.connector.geomesa.v2.common.GeoMesaRelation
+import org.apache.spark.sql.connector.geomesa.v2.common.{GeoMesaRelation, SparkUtils}
 import org.apache.spark.sql.connector.geomesa.v2.common.GeoMesaSparkSQL.GEOMESA_SQL_FEATURE
 import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationProvider}
 import org.apache.spark.sql.types.StructType
@@ -16,7 +16,7 @@ import java.util
 import scala.collection.JavaConverters.mapAsJavaMapConverter
 
 class GeoMesaDataSource extends TableProvider with DataSourceRegister with RelationProvider {
-  override def shortName(): String = "geov2"
+  override def shortName(): String = "geov2withoutsrp"
 
   override def inferSchema(options: CaseInsensitiveStringMap): StructType = {
     // 만약 스키마 추론이 필요한 경우 empty 스키마를 반환하면 된다고 되어있엇음 ,,

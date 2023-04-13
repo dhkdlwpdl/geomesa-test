@@ -3,7 +3,7 @@ package org.apache.spark.sql.connector.geomesa.v2.test1
 import org.apache.spark.sql.connector.catalog.{Table, TableProvider}
 import org.apache.spark.sql.connector.expressions.Transform
 import org.apache.spark.sql.connector.geomesa.v1.SQLTypes
-import org.apache.spark.sql.connector.geomesa.v2.common.GeoMesaRelation
+import org.apache.spark.sql.connector.geomesa.v2.common.{GeoMesaRelation, SparkUtils}
 import org.apache.spark.sql.connector.geomesa.v2.common.GeoMesaSparkSQL.GEOMESA_SQL_FEATURE
 import org.apache.spark.sql.sources.{BaseRelation, DataSourceRegister, RelationProvider}
 import org.apache.spark.sql.types.StructType
