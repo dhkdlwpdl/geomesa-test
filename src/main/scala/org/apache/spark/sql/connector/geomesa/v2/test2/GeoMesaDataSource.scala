@@ -16,7 +16,7 @@ import java.util
 import scala.collection.JavaConverters.mapAsJavaMapConverter
 
 /**
- * DataSource V2 테스트 without SpatialRDDProvider
+ * DataSource V2 테스트 without SpatialRDDProvider (CQEngine 특화)
  */
 class GeoMesaDataSource extends TableProvider with DataSourceRegister with RelationProvider {
   override def shortName(): String = "geov2withoutsrp"

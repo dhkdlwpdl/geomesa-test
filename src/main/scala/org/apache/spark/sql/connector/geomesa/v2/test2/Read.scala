@@ -1,18 +1,16 @@
 package org.apache.spark.sql.connector.geomesa.v2.test2
 
-import org.apache.hadoop.conf.Configuration
-import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.connector.geomesa.v2.common.SparkUtils
 import org.apache.spark.sql.connector.read._
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.util.CaseInsensitiveStringMap
-import org.apache.spark.{Partition, SparkContext}
-import org.geotools.data.Query
-import org.locationtech.geomesa.spark.{GeoMesaSpark, SpatialRDDProvider}
+import org.apache.spark.SparkContext
+import org.geotools.data.{DataStore, Query, Transaction}
+import org.locationtech.geomesa.utils.collection.CloseableIterator
+import org.locationtech.geomesa.utils.io.{WithClose, WithStore}
 import org.opengis.feature.simple.SimpleFeature
-
-import scala.collection.JavaConverters.{mapAsJavaMapConverter, mapAsScalaMapConverter}
+import scala.collection.JavaConverters.mapAsScalaMapConverter
 
 class GeoMesaScanBuilderWithoutSRP(options: CaseInsensitiveStringMap, schema: StructType, name: String) extends ScanBuilder {
   override def build(): Scan = new GeoMesaScanWithoutSRP(options, schema, name)
@@ -24,27 +22,15 @@ class GeoMesaScanWithoutSRP(options: CaseInsensitiveStringMap, schema: StructTyp
   override def readSchema(): StructType = schema
 
   override def toBatch: Batch = {
-    val spark: SparkSession = SparkSession.builder().getOrCreate()
-    val conf: Configuration = new Configuration(spark.sqlContext.sparkContext.hadoopConfiguration)
-    //    val filt = ECQL.toFilter("")
-    //    val requiredAttributes = requiredAttributes
-    val query: Query = new Query(name)
-    val spatialRDDProvider: SpatialRDDProvider = GeoMesaSpark(options)
-    val spatialRDD = spatialRDDProvider.rdd(conf, spark.sparkContext, options.asScala.toMap, query)
-
-    new GeoMesaBatchWithoutSRP(options.asScala.toMap, name, spatialRDD.partitions, schema: StructType)
+    new GeoMesaBatchWithoutSRP(options.asScala.toMap, name, schema: StructType)
   }
 }
 
-class GeoMesaBatchWithoutSRP(options: Map[String, String], name: String, partitions: Array[Partition], schema: StructType) extends Batch {
+class GeoMesaBatchWithoutSRP(options: Map[String, String], name: String, schema: StructType) extends Batch {
   // 데이터소스의 Batch 쿼리 Scan 의 물리적인 표현
   // 데이터가 얼마나 많은 파티션을 가지고 있는지와 어떻게 데이터를 파티션에서 읽어올건지 같은 물리적인 정보 제공을 위해 사용됨
 
-  override def planInputPartitions(): Array[InputPartition] = {
-    println("planInputPartitions method called")
-    val parts = partitions.indices.map(value =>  GeoMesaInputPartitionWithoutSRP(value))
-    parts.toArray
-  }
+  override def planInputPartitions(): Array[InputPartition] = Array(GeoMesaInputPartitionWithoutSRP(1))
 
   override def createReaderFactory(): PartitionReaderFactory = new GeoMesaPartitionReaderFactoryWithoutSRP (options, name, schema)
 }
@@ -65,12 +51,14 @@ class GeoMesaPartitionReaderWithoutSRP(options: Map[String, String], name: Strin
 
   override def next(): Boolean = {
     if (iterator == null ){
-      val conf: Configuration = new Configuration(sparkContext.hadoopConfiguration)
       val query: Query = new Query(name)
-      val spatialRDDProvider: SpatialRDDProvider = GeoMesaSpark(options.asJava)
-      val spatialRDD = spatialRDDProvider.rdd(conf, sparkContext, options, query)
-      val part = spatialRDD.partitions(partition.asInstanceOf[GeoMesaInputPartitionWithoutSRP].value)
-      iterator = spatialRDD.iterator(part, org.apache.spark.TaskContext.get())
+      val requiredColumns = schema.map(_.name).toArray // temporary
+      val extractors = SparkUtils.getExtractors(requiredColumns, schema)
+      iterator = WithStore[DataStore](options) { ds =>
+        WithClose(ds.getFeatureReader(query, Transaction.AUTO_COMMIT)) { reader =>
+          CloseableIterator(reader).toList
+        }
+      }.toIterator
     }
     iterator.hasNext
   }
