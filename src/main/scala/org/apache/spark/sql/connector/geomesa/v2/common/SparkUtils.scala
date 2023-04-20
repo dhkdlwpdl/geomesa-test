@@ -3,8 +3,10 @@ package org.apache.spark.sql.connector.geomesa.v2.common
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.expressions.{GenericInternalRow, GenericRowWithSchema, UnsafeRow}
-import org.apache.spark.sql.jts.{JTSTypes, PointUDT}
+import org.apache.spark.sql.catalyst.expressions.{GenericInternalRow, GenericRowWithSchema, UnsafeMapData, UnsafeRow}
+import org.apache.spark.sql.catalyst.util.{ArrayBasedMapData, ArrayData, MapData}
+import org.apache.spark.sql.connector.geomesa.v1.SparkUtils.SimpleFeatureRowMapping
+import org.apache.spark.sql.jts.{GeometryCollectionUDT, GeometryUDT, JTSTypes, LineStringUDT, MultiLineStringUDT, MultiPointUDT, MultiPolygonUDT, PointUDT, PolygonUDT}
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
@@ -14,7 +16,7 @@ import org.locationtech.geomesa.features.ScalaSimpleFeature
 import org.locationtech.geomesa.utils.geotools.ObjectType
 import org.locationtech.geomesa.utils.geotools.sft.SimpleFeatureSpec.{ListAttributeSpec, MapAttributeSpec}
 import org.locationtech.geomesa.utils.uuid.TimeSortedUuidGenerator
-import org.locationtech.jts.geom.Point
+import org.locationtech.jts.geom.{Geometry, GeometryCollection, LineString, MultiLineString, MultiPoint, MultiPolygon, Point, Polygon}
 import org.opengis.feature.`type`.AttributeDescriptor
 import org.opengis.feature.simple.{SimpleFeature, SimpleFeatureType}
 import org.opengis.filter.FilterFactory2
@@ -337,6 +339,61 @@ object SparkUtils extends LazyLogging {
         case _: String => res(i) = UTF8String.fromString(tmp.toString)
         case _: Timestamp => res(i) = tmp.asInstanceOf[Timestamp].getTime
         case _: Point => res(i) = PointUDT.serialize(tmp.asInstanceOf[Point])
+        case _: LineString => res(i) = LineStringUDT.serialize(tmp.asInstanceOf[LineString])
+        case _: Polygon => res(i) = PolygonUDT.serialize(tmp.asInstanceOf[Polygon])
+        case _: MultiPoint => res(i) = MultiPointUDT.serialize(tmp.asInstanceOf[MultiPoint])
+        case _: MultiLineString => res(i) = MultiLineStringUDT.serialize(tmp.asInstanceOf[MultiLineString])
+        case _: MultiPolygon => res(i) = MultiPolygonUDT.serialize(tmp.asInstanceOf[MultiPolygon])
+        case _: GeometryCollection => res(i) = GeometryCollectionUDT.serialize(tmp.asInstanceOf[GeometryCollection])
+        case _: Geometry => res(i) = GeometryUDT.serialize(tmp.asInstanceOf[Geometry])
+        case li: List[AnyRef] =>
+          val t = li.map { tt =>
+            val ttt = tt match {
+              case str: String => UTF8String.fromString(str)
+              case ts: Timestamp => ts.getTime
+              case p: Point => PointUDT.serialize(p)
+              case ls: LineString => LineStringUDT.serialize(ls)
+              case poly: Polygon => PolygonUDT.serialize(poly)
+              case mp: MultiPoint => MultiPointUDT.serialize(mp)
+              case mls: MultiLineString => MultiLineStringUDT.serialize(mls)
+              case mpoly: MultiPolygon => MultiPolygonUDT.serialize(mpoly)
+              case gc: GeometryCollection => GeometryCollectionUDT.serialize(gc)
+              case geo: Geometry => GeometryUDT.serialize(geo)
+              case other => other
+            }
+            ttt
+          }
+          res(i) = ArrayData.toArrayData(t)
+
+        case map: Map[AnyRef, AnyRef] =>
+          val keys = map.keys.map {
+            case s: String => UTF8String.fromString(s)
+            case ts: Timestamp => ts.getTime
+            case p: Point => PointUDT.serialize(p)
+            case ls: LineString => LineStringUDT.serialize(ls)
+            case po: Polygon => PolygonUDT.serialize(po)
+            case mp: MultiPoint => MultiPointUDT.serialize(mp)
+            case mls: MultiLineString => MultiLineStringUDT.serialize(mls)
+            case mpo: MultiPolygon => MultiPolygonUDT.serialize(mpo)
+            case gc: GeometryCollection => GeometryCollectionUDT.serialize(gc)
+            case g: Geometry => GeometryUDT.serialize(g)
+            case x => x
+          }.toList
+          val values = map.values.map {
+            case s: String => UTF8String.fromString(s)
+            case ts: Timestamp => ts.getTime
+            case p: Point => PointUDT.serialize(p)
+            case ls: LineString => LineStringUDT.serialize(ls)
+            case po: Polygon => PolygonUDT.serialize(po)
+            case mp: MultiPoint => MultiPointUDT.serialize(mp)
+            case mls: MultiLineString => MultiLineStringUDT.serialize(mls)
+            case mpo: MultiPolygon => MultiPolygonUDT.serialize(mpo)
+            case gc: GeometryCollection => GeometryCollectionUDT.serialize(gc)
+            case g: Geometry => GeometryUDT.serialize(g)
+            case x => x
+          }.toList
+
+          res(i) = new ArrayBasedMapData (ArrayData.toArrayData(keys), ArrayData.toArrayData(values))
         case _ => res(i) = tmp
       }
 
