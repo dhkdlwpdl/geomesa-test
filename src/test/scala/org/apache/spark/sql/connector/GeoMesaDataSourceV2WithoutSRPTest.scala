@@ -36,7 +36,7 @@ object GeoMesaDataSourceV2WithoutSRPTest {
     spark.sql("select * from test2").show()
 
       // 테스트3: Spark SQL + Condition
-    spark.sql("select * from test2 where case_number = 3").show()
+    spark.sql("select * from test2 where fid = 123").show()
 
 
     println("------------------------------------------------------------------------------------------------")
