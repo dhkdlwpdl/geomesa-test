@@ -331,6 +331,19 @@ object SparkUtils extends LazyLogging {
   def sf2InternalRowByYJ(sf: SimpleFeature, extractors: Array[SimpleFeature => AnyRef]): InternalRow = {
     val res = Array.ofDim[Any](extractors.length)
     var i = 0
+
+    def geometryCast(geom: Geometry): InternalRow = {
+      geom match {
+        case point: Point => PointUDT.serialize(point)
+        case lineString: LineString => LineStringUDT.serialize(lineString)
+        case polygon: Polygon => PolygonUDT.serialize(polygon)
+        case multiPoint: MultiPoint => MultiPointUDT.serialize(multiPoint)
+        case multiLineString: MultiLineString => MultiLineStringUDT.serialize(multiLineString)
+        case multiPolygon: MultiPolygon => MultiPolygonUDT.serialize(multiPolygon)
+        case geometryCollection: GeometryCollection => GeometryCollectionUDT.serialize(geometryCollection)
+        case geometry => GeometryUDT.serialize(geometry)
+      }
+    }
     while (i < extractors.length) {
       //      res(i) = extractors(i)(sf)
       val tmp = extractors(i)(sf)
@@ -338,27 +351,13 @@ object SparkUtils extends LazyLogging {
       tmp match {
         case _: String => res(i) = UTF8String.fromString(tmp.toString)
         case _: Timestamp => res(i) = tmp.asInstanceOf[Timestamp].getTime
-        case _: Point => res(i) = PointUDT.serialize(tmp.asInstanceOf[Point])
-        case _: LineString => res(i) = LineStringUDT.serialize(tmp.asInstanceOf[LineString])
-        case _: Polygon => res(i) = PolygonUDT.serialize(tmp.asInstanceOf[Polygon])
-        case _: MultiPoint => res(i) = MultiPointUDT.serialize(tmp.asInstanceOf[MultiPoint])
-        case _: MultiLineString => res(i) = MultiLineStringUDT.serialize(tmp.asInstanceOf[MultiLineString])
-        case _: MultiPolygon => res(i) = MultiPolygonUDT.serialize(tmp.asInstanceOf[MultiPolygon])
-        case _: GeometryCollection => res(i) = GeometryCollectionUDT.serialize(tmp.asInstanceOf[GeometryCollection])
-        case _: Geometry => res(i) = GeometryUDT.serialize(tmp.asInstanceOf[Geometry])
+        case geom: Geometry => res(i) = geometryCast(geom)
         case li: List[AnyRef] =>
           val t = li.map { tt =>
             val ttt = tt match {
               case str: String => UTF8String.fromString(str)
               case ts: Timestamp => ts.getTime
-              case p: Point => PointUDT.serialize(p)
-              case ls: LineString => LineStringUDT.serialize(ls)
-              case poly: Polygon => PolygonUDT.serialize(poly)
-              case mp: MultiPoint => MultiPointUDT.serialize(mp)
-              case mls: MultiLineString => MultiLineStringUDT.serialize(mls)
-              case mpoly: MultiPolygon => MultiPolygonUDT.serialize(mpoly)
-              case gc: GeometryCollection => GeometryCollectionUDT.serialize(gc)
-              case geo: Geometry => GeometryUDT.serialize(geo)
+              case geom: Geometry => geometryCast(geom)
               case other => other
             }
             ttt
@@ -369,27 +368,13 @@ object SparkUtils extends LazyLogging {
           val keys = map.keys.map {
             case s: String => UTF8String.fromString(s)
             case ts: Timestamp => ts.getTime
-            case p: Point => PointUDT.serialize(p)
-            case ls: LineString => LineStringUDT.serialize(ls)
-            case po: Polygon => PolygonUDT.serialize(po)
-            case mp: MultiPoint => MultiPointUDT.serialize(mp)
-            case mls: MultiLineString => MultiLineStringUDT.serialize(mls)
-            case mpo: MultiPolygon => MultiPolygonUDT.serialize(mpo)
-            case gc: GeometryCollection => GeometryCollectionUDT.serialize(gc)
-            case g: Geometry => GeometryUDT.serialize(g)
+            case geom: Geometry => geometryCast(geom)
             case x => x
           }.toList
           val values = map.values.map {
             case s: String => UTF8String.fromString(s)
             case ts: Timestamp => ts.getTime
-            case p: Point => PointUDT.serialize(p)
-            case ls: LineString => LineStringUDT.serialize(ls)
-            case po: Polygon => PolygonUDT.serialize(po)
-            case mp: MultiPoint => MultiPointUDT.serialize(mp)
-            case mls: MultiLineString => MultiLineStringUDT.serialize(mls)
-            case mpo: MultiPolygon => MultiPolygonUDT.serialize(mpo)
-            case gc: GeometryCollection => GeometryCollectionUDT.serialize(gc)
-            case g: Geometry => GeometryUDT.serialize(g)
+            case geom: Geometry => geometryCast(geom)
             case x => x
           }.toList
 
