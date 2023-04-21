@@ -3,7 +3,7 @@ package org.apache.spark.sql.connector.geomesa.v2.common
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.expressions.{GenericInternalRow, GenericRowWithSchema, UnsafeMapData, UnsafeRow}
+import org.apache.spark.sql.catalyst.expressions.{GenericInternalRow, GenericRowWithSchema, UnsafeArrayData, UnsafeMapData, UnsafeRow}
 import org.apache.spark.sql.catalyst.util.{ArrayBasedMapData, ArrayData, MapData}
 import org.apache.spark.sql.connector.geomesa.v1.SparkUtils.SimpleFeatureRowMapping
 import org.apache.spark.sql.jts.{GeometryCollectionUDT, GeometryUDT, JTSTypes, LineStringUDT, MultiLineStringUDT, MultiPointUDT, MultiPolygonUDT, PointUDT, PolygonUDT}
@@ -317,8 +317,21 @@ object SparkUtils extends LazyLogging {
       val feature = new ScalaSimpleFeature(sft, id(row))
       mappings.foreach { case (to, from, needConversion) =>
         if (needConversion) {
-          if (row.get(from).isInstanceOf[UnsafeRow]) feature.setAttribute(to, PointUDT.deserialize(row.getAs[Array[Byte]](from))) // Point Type Cast 임시
-          else feature.setAttribute(to, row.getAs[Object](from))
+          println("checkpoint", row.get(from))
+          row.get(from) match {
+            case _: UnsafeRow =>
+              // 임시 Geometry Type Cast: 현재까지 Geometry Type에 대해서는 UnsafeRow로 처리되는 것으로 확인함
+              // 일괄적으로 GeometryUDT를 이용한 deserialize 진행
+              // 문제 생길 시 대체할 것
+              feature.setAttribute(to, GeometryUDT.deserialize(row.getAs[Array[Byte]](from)))
+            case _: UnsafeArrayData =>
+              // TODO: Array Type Cast 수정 필요. 현재 null로 나옴
+              feature.setAttribute(to, row.getAs[ArrayData](from))
+            case _: UnsafeMapData =>
+              // TODO: Map Type Cast 수정 필요. 현재 null로 나옴
+              feature.setAttribute(to, row.getAs[MapData](from))
+            case _ => feature.setAttribute(to, row.getAs[Object](from))
+          }
         }
         else feature.setAttributeNoConvert(to, row.getAs[Object](from))
       }
