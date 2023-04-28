@@ -27,10 +27,11 @@ object GeoMesaDataSourceV2WithoutSRPTest {
     // 조회 테스트
       // 테스트1: DataFrame load
     val df: DataFrame = spark.read
-      .format("geov2withoutsrp")
-      .options(dsParams)
-      .option("geomesa.feature", "chicago")
-      .load()
+    .format("geov2withoutsrp")
+    .options(dsParams)
+    .option("geomesa.feature", "chicago")
+    .load()
+    .select("fid", "name", "date", "bool")
     df.show()
 
       // 테스트2: Spark SQL select
@@ -40,7 +41,7 @@ object GeoMesaDataSourceV2WithoutSRPTest {
     spark.sql("select * from test2").show()
 
       // 테스트3: Spark SQL + Condition
-    spark.sql("select * from test2 where fid = 123").show()
+    spark.sql("select fid, name, long, bool, date, timestamp from test2 where fid=555").show()
 
 
     println("------------------------------------------------------------------------------------------------")

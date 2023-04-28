@@ -3,7 +3,7 @@ package org.apache.spark.sql.connector.geomesa.v2.test2.case1
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.connector.geomesa.v2.common.SparkUtils
 import org.apache.spark.sql.connector.read._
-import org.apache.spark.sql.types.StructType
+import org.apache.spark.sql.types._
 import org.apache.spark.sql.util.CaseInsensitiveStringMap
 import org.geotools.data.{DataStore, Query, Transaction}
 import org.locationtech.geomesa.utils.collection.CloseableIterator
@@ -22,7 +22,7 @@ class GeoMesaScanWithoutSRP(options: CaseInsensitiveStringMap, schema: StructTyp
   override def readSchema(): StructType = schema
 
   override def toBatch: Batch = {
-    new GeoMesaBatchWithoutSRP(options.asScala.toMap, name, schema: StructType)
+    new GeoMesaBatchWithoutSRP(options.asScala.toMap, name, schema)
   }
 }
 

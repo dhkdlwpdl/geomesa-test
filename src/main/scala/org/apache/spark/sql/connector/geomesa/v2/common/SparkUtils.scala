@@ -47,7 +47,7 @@ object SparkUtils extends LazyLogging {
         fieldType match {
           case _: TimestampType =>
             sf: SimpleFeature => {
-              val attr = sf.getAttribute(index)
+              val attr = sf.getAttribute(col)
               if (attr == null) {
                 null
               } else {
@@ -58,7 +58,7 @@ object SparkUtils extends LazyLogging {
           case arrayType: ArrayType =>
             val elementType = arrayType.elementType
             sf: SimpleFeature => {
-              val attr = sf.getAttribute(index)
+              val attr = sf.getAttribute(col)
               if (attr == null) {
                 null
               } else {
@@ -75,7 +75,7 @@ object SparkUtils extends LazyLogging {
             val keyType = mapType.keyType
             val valueType = mapType.valueType
             sf: SimpleFeature => {
-              val attr = sf.getAttribute(index)
+              val attr = sf.getAttribute(col)
               if (attr == null) {
                 null
               } else {
@@ -97,7 +97,7 @@ object SparkUtils extends LazyLogging {
               }
             }
 
-          case _ => sf: SimpleFeature => sf.getAttribute(index)
+          case _ => sf: SimpleFeature => sf.getAttribute(col)
         }
     }
   }
@@ -342,6 +342,7 @@ object SparkUtils extends LazyLogging {
 
   // test by yj
   def sf2InternalRowByYJ(sf: SimpleFeature, extractors: Array[SimpleFeature => AnyRef]): InternalRow = {
+
     val res = Array.ofDim[Any](extractors.length)
     var i = 0
 
@@ -362,6 +363,7 @@ object SparkUtils extends LazyLogging {
       val tmp = extractors(i)(sf)
 
       tmp match {
+        case _: Integer => res(i) = tmp
         case _: String => res(i) = UTF8String.fromString(tmp.toString)
         case _: Timestamp => res(i) = tmp.asInstanceOf[Timestamp].getTime
         case geom: Geometry => res(i) = geometryCast(geom)
@@ -376,7 +378,6 @@ object SparkUtils extends LazyLogging {
             ttt
           }
           res(i) = ArrayData.toArrayData(t)
-
         case map: Map[AnyRef, AnyRef] =>
           val keys = map.keys.map {
             case s: String => UTF8String.fromString(s)
@@ -399,7 +400,6 @@ object SparkUtils extends LazyLogging {
     }
     new GenericInternalRow(res)
   }
-
 
   def joinedSf2row(schema: StructType, sf1: SimpleFeature, sf2: SimpleFeature, extractors: Array[SimpleFeature => AnyRef]): Row = {
     val leftLength = sf1.getAttributeCount + 1

@@ -36,7 +36,15 @@ class GeoMesaDataSource extends TableProvider with DataSourceRegister with Relat
       }
     }
 
-    SparkUtils.createStructType(storeSft)
+    val schema=SparkUtils.createStructType(storeSft)
+
+    val readFields = options.get("requiredColumn")
+    if (readFields==null){
+      schema
+    }else{
+      StructType(schema.fields.filter(f =>readFields.contains(f.name)))
+    }
+
   }
 
   private val spark: SparkSession = SparkSession.builder().getOrCreate()
@@ -47,6 +55,8 @@ class GeoMesaDataSource extends TableProvider with DataSourceRegister with Relat
   }
 
   override def createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = {
+    SQLTypes.init(spark.sqlContext)
+
     val caseInsensitiveMap = new CaseInsensitiveStringMap(parameters.asJava)
     val schem = inferSchema(caseInsensitiveMap)
 
