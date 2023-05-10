@@ -39,10 +39,11 @@ class GeoMesaDataSource extends TableProvider with DataSourceRegister with Relat
     val schema=SparkUtils.createStructType(storeSft)
 
     val readFields = options.get("requiredColumn")
+    val kv = schema.fields.map( sf => sf.name -> sf).toMap
     if (readFields==null){
       schema
-    }else{
-      StructType(schema.fields.filter(f =>readFields.contains(f.name)))
+    } else{
+      StructType(readFields.split(",").map( kv(_)))
     }
 
   }
